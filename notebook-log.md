@@ -22,5 +22,10 @@
 
     cat part1.fasta part2.fasta > pika_raw_sequences.fasta
 - double checked by opening the file and saw nucleotides, and the file size was 165KB
+- Quality Control: could not run FastQC because my raw data is in FASTA format not FASTQ. Instead used seqkit
+        conda install -c bioconda seqkit
+        seqkit stats pika_raw_sequences.fasta
+- The dataset consists of 250 raw sequences in FASTA format, ranging from 234 to 909 bases (average 570 bp). Quality control was performed using seqkit stats to check sequence length distribution and overall integrity, confirming the sequences are suitable for downstream analyses.
+
 
 
