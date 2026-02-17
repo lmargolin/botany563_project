@@ -26,12 +26,18 @@
         conda install -c bioconda seqkit
         seqkit stats pika_raw_sequences.fasta
 - The dataset consists of 250 raw sequences in FASTA format, ranging from 234 to 909 bases (average 570 bp). Quality control was performed using seqkit stats to check sequence length distribution and overall integrity, confirming the sequences are suitable for downstream analyses.
-    ## Multiple Sequence Alignment
+    ## Multiple Sequence Alignment(1)
     - Method: MAFFT (--auto)
     - Algorithm: FFT-based progressive alignment with iterative refinement
     - Assumptions: Sequences are homologous, evolution is mostly vertical
     - Limitations: May misalign highly divergent regions; guide-tree errors propagate
-        mafft --auto pika_raw_sequences.fasta > pika_aligned.fasta
+    - command: mafft --auto pika_raw_sequences.fasta > pika_aligned.fasta
+    ## Multiple Sequence Alignment using ClustalW (2)
+    - Algorithm: Progressive alignment based on a guide tree
+    - Assumptions: Sequences are homologous; early alignments are correct
+    - Limitations: Errors early in the guide tree propagate; less accurate for divergent sequences
+    - command: clustalw -INFILE=pika_raw_sequences.fasta -TYPE=DNA -OUTFILE=pika_clustalw_aligned.fasta -OUTPUT=FASTA
+
 
 
 
