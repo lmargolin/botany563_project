@@ -37,6 +37,33 @@
     - Assumptions: Sequences are homologous; early alignments are correct
     - Limitations: Errors early in the guide tree propagate; less accurate for divergent sequences
     - command: clustalw -INFILE=pika_raw_sequences.fasta -TYPE=DNA -OUTFILE=pika_clustalw_aligned.fasta -OUTPUT=FASTA
+    
+##2026-03-03
+- Working on Distance and Parsimony 
+1) installed necessary packages (R)
+    install.packages("adegenet", dep=TRUE)
+    install.packages("phangorn", dep=TRUE)
+2) got in correct working directory 
+    setwd("~/Desktop/botany563_project/data/raw")
+3) Loaded packages (R)
+    library(ape)
+    library(adegenet)
+    library(phangorn)
+4) Loading the sample data and concert to pangorn object
+    dna <- read.dna("pika_aligned.fasta", format="fasta")
+    dna2 <- as.phyDat(dna)
+5) We need a starting tree for the search on tree space and compute the parsimony score of this tree (422)
+    tre.ini <- nj(dist.dna(dna, model="raw"))
+    parsimony(tre.ini, dna2)
+    - result: [1] 4257
+6) search for the tree with maximum parsimony 
+    tre.pars <- optim.parsimony(tre.ini, dna2)
+    - result: Final p-score 3433 after  87 nni operations
+7) plot tree
+    plot(tre.pars, cex=0.6)
+8) labels were too crowded so tried again
+    plot(tre.pars, cex=0.5)
+
 
 
 
