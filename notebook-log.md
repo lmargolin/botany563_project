@@ -63,6 +63,70 @@
     plot(tre.pars, cex=0.6)
 8) labels were too crowded so tried again
     plot(tre.pars, cex=0.5)
+    
+    
+##2026-03-19
+- Maximum Likelihood (RAxML)
+- Description of RAxML: RAxML-NG (Randomized Axelerated Maximum Likelihood – Next Generation) is a widely used software tool for inferring phylogenetic trees using the maximum likelihood (ML) framework. It estimates the tree topology, branch lengths, and substitution model parameters that maximize the likelihood of observing a given multiple sequence alignment under a specified model of sequence evolution. RAxML-NG is optimized for large datasets and supports parallel computation, making it efficient for analyses with many taxa and sites.
+- Assumptions of RAxML: RAxML assumes that the input sequences are correctly aligned and homologous, meaning each column represents a shared evolutionary position. It relies on an explicit substitution model (e.g., LG+G+F for protein data) that assumes a particular pattern of sequence evolution, including stationarity, reversibility, and homogeneity across the tree (unless partitioned models are used). Sites are typically assumed to evolve independently, with rate heterogeneity modeled (e.g., via a Gamma distribution).
+- Limitations of RAxML: RAxML’s accuracy depends strongly on the quality of the input alignment; misaligned regions or excessive gaps can bias results. Violations of model assumptions (e.g., compositional bias, heterotachy, or non-independence among sites) can lead to incorrect tree inference. The ML search is heuristic, so it does not guarantee finding the global optimum tree, especially for large or complex datasets. Additionally, duplicated or highly similar sequences can influence branch length estimation and support values if not handled appropriately.
+1) check the alignment
+    raxml-ng --check --msa pika_clustalw_aligned.fasta --model LG+G8+F
+2) find the ML tree
+    raxml-ng --msa pika_clustalw_aligned.fasta --model LG+G8+F
+3) Open R and dirty plot
+    library(ape)
+    tre = read.tree(file="pika_clustalw_aligned.fasta.raxml.bestTree")
+    plot(tre)
+4)Non-parametric bootstrapping 
+    raxml-ng --all --msa pika_clustalw_aligned.fasta --model LG+G8+F --bs-trees 10 --prefix pika_clustalw_aligned.fasta.raxml.boostrap
+5) Open R and dirty plot
+    library(ape)
+    tre = read.tree(file="pika_clustalw_aligned.fasta.raxml.boostrap.raxml.support")
+    plot(tre)
+    nodelabels(tre$node.label)
+6)note the tree does not seem to be rooted correctly
+    library(ape)
+    tre = read.tree(file="pika_clustalw_aligned.fasta.raxml.boostrap.raxml.support")
+    plot(tre)
+    nodelabels()
+
+    rtre = root(tre, node=33, resolve.root=TRUE)
+    plot(rtre)
+    nodelabels(rtre$node.label)
+
+
+- Maximum Likelihood: IQ-Tree
+- Description: IQ-TREE is a phylogenetic inference software that uses the maximum likelihood (ML) framework to estimate evolutionary trees from multiple sequence alignments. It features efficient tree-search algorithms and automated model selection (e.g., ModelFinder), and provides measures of branch support such as ultrafast bootstrap and SH-aLRT.
+- Assumptions: IQ-TREE assumes that sequences are correctly aligned and homologous, and that sequence evolution follows a specified substitution model (often assuming stationarity, reversibility, and homogeneity across lineages unless otherwise modeled). Sites are generally treated as independent, with rate variation accommodated (e.g., via Gamma or FreeRate models).
+- Limitations: Results depend heavily on alignment quality and the appropriateness of the chosen model. Violations of model assumptions (e.g., compositional bias or heterotachy) can bias tree inference. Like other ML methods, the tree search is heuristic and may not find the global optimum. Some support metrics (e.g., ultrafast bootstrap) can be overconfident under certain conditions if model assumptions are violated.
+1) Run
+    iqtree -s pika_aligned.fasta
+2) Open R and run a dirty plot
+    library(ape)
+    tre = read.tree(file="pika_aligned.fasta.treefile")
+    plot(tre)
+3) Root the tree again
+    plot(tre)
+    nodelabels()
+
+    rtre = root(tre, node=31, resolve.root=TRUE)
+    plot(rtre)
+4) Quantify support for the estimated tree. Add a prefix because it does not let us overright the original files produced.
+    iqtree -s pika_aligned.fasta -m HIVb+G4 -b 10 -pre pika_aligned.fasta-iqtree-bootstrap
+5) In R, plot the tree again with bootstrap support
+    library(ape)
+    tre = read.tree(file="pika_aligned.fasta-iqtree-bootstrap.treefile")
+    plot(tre)
+    nodelabels()
+
+    rtre = root(tre, node=31, resolve.root=TRUE)
+    plot(rtre)
+    nodelabels(rtre$node.label)
+
+
+
+
 
 
 
