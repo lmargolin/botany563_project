@@ -240,7 +240,69 @@
         nodelabels(rtre$node.label)
 
 
+##2026-04-07
+- Working on Bayesian Method via Mr Bayes
+- Bayesian Inference: Mr Bayes
+- Description: Phylogenetic relationships were inferred using MrBayes, which estimates the posterior distribution of trees and model parameters with a Markov chain Monte Carlo (MCMC) algorithm. Rather than producing a single best tree only, this approach samples many possible trees in proportion to their posterior probability, allowing clade support to be expressed as posterior probabilities. For this dataset, an HKY substitution model with gamma-distributed rate variation among sites was used, with two independent runs of four chains each.
+- Assumptions: MrBayes assumes that the input sequences are homologous and correctly aligned, that the chosen substitution model adequately describes sequence evolution, and that sites evolve independently according to the specified model. It also assumes that the MCMC chains converge to the target posterior distribution and mix sufficiently well to provide reliable parameter and tree estimates.
+- Limitations: Bayesian phylogenetic inference can be sensitive to model choice, prior settings, and insufficient chain length or poor convergence. Posterior probabilities may appear strongly supported even when the underlying dataset contains limited information. In this analysis, a major limitation is the short alignment length (70 bp), which restricts phylogenetic signal and may reduce confidence in the inferred relationships. Therefore, although convergence diagnostics indicated that the analysis ran successfully, the resulting tree should still be interpreted cautiously because uncertainty may reflect the limited amount of sequence data rather than algorithm performance.
+- Prepare input file (input file is pika_11_aligned_MAFT.fasta)
+    pip install biopython
+    
+    python - <<EOF
+    from Bio import SeqIO
+    
+    records = list(SeqIO.parse("pika_11_aligned_MAFT.fasta", "fasta"))
+    
+    for r in records:
+        r.annotations["molecule_type"] = "DNA"
 
+    SeqIO.write(records, "pika_11.nex", "nexus")
+    EOF
+- Add Mr Bayes code to nexus file (full file looks like this)
+    nano pika_11.nex 
+    
+        #NEXUS
+        begin data;
+        dimensions ntax=11 nchar=70;
+        format datatype=dna missing=? gap=-;
+        matrix
+        KP292978.1 agaagtgctgtgctgctgctgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        KP292980.1 agaagtgctgtgctgctgatgacaaggaagcctgcttttcagaggaggtactggagctgtgttccytcca
+        KP292982.1 agaagtgctgtgctgctgctgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        KP292984.1 agaagtgctgtgctgctgctgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        KP292986.1 agaagtgctgtgctgctgctgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        KP292988.1 agaagtgctgtgctgctgctgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        KP292990.1 agaagtgctgtgctgctgatgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        KP292991.1 agaagtgctgtgctgctgacgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcta
+        KP292993.1 agaagtgctgtgctgctgctgacaaggaagcctgctttttagaggaggtactggagctgtgttccctcaa
+        KP292995.1 agaagtgctgtgctgccgctgacaaggaagcctgcttttcagaggaggtactggagctgtgctcccttca
+        KP292997.1 agaagtgctgtgctgctgctgacaaggaagcctgcttttcagaggaggtactggagctgtgttccctcca
+        ;
+        end;
+
+        begin mrbayes;
+            set autoclose=yes nowarn=yes;
+            prset brlenspr=unconstrained:exp(10.0);
+            prset shapepr=exp(1.0);
+            prset tratiopr=beta(1.0,1.0);
+            prset statefreqpr=dirichlet(1.0,1.0,1.0,1.0);
+            lset nst=2 rates=gamma ngammacat=4;
+            mcmcp ngen=1000000 samplefreq=100 printfreq=100 diagnfreq=1000 nruns=2 nchains=4 savebrlens=yes;
+            mcmc;
+            sump burnin=2500;
+            sumt burnin=2500;
+        end;
+- reasoning for the parameters chosen 
+    Bayesian phylogenetic inference was performed using MrBayes. A General Time Reversible (GTR) substitution model with gamma-distributed rate variation among sites was employed. Two independent runs of four Markov chains were conducted for 1,000,000 generations, sampling every 100 generations. Convergence was assessed using the average standard deviation of split frequencies (<0.01) and potential scale reduction factor (PSRF ≈ 1). The first 25% of samples were discarded as burn-in. Because the alignment was short (70 bp), results should be interpreted with caution.
+- run mr bayes
+    mb pika_11.nex
+- thoughts on run 
+    The Bayesian analysis converged successfully, with an average standard deviation of split frequencies below 0.01 and PSRF values near 1.0. Effective sample sizes (ESS) were high for all parameters, indicating adequate sampling. However, posterior probabilities for most clades were moderate to low, and a large number of trees were present in the credible set, suggesting limited phylogenetic resolution due to the short alignment length (70 bp).
+- important output files
+    - final tree -> pika_11.nex.con.t
+    - convergence and stats -> pika_11.nex.pstat
+- Tracer - not done yet? does this need to be completed?
 
 
 
