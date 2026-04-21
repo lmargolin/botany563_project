@@ -240,7 +240,7 @@
         nodelabels(rtre$node.label)
 
 
-##2026-04-07
+## 2026-04-07
 - Working on Bayesian Method via Mr Bayes
 - Bayesian Inference: Mr Bayes
 - Description: Phylogenetic relationships were inferred using MrBayes, which estimates the posterior distribution of trees and model parameters with a Markov chain Monte Carlo (MCMC) algorithm. Rather than producing a single best tree only, this approach samples many possible trees in proportion to their posterior probability, allowing clade support to be expressed as posterior probabilities. For this dataset, an HKY substitution model with gamma-distributed rate variation among sites was used, with two independent runs of four chains each.
@@ -304,5 +304,42 @@
     - convergence and stats -> pika_11.nex.pstat
 - Tracer - not done yet? does this need to be completed?
 
+## 2026-04-19 and 2026-04-20
+- The Coalescent - ASTRAL
+- Description: Phylogenetic relationships were inferred using ASTRAL, a summary method that estimates a species tree from a collection of gene trees under the multispecies coalescent model. Rather than concatenating sequences into a single supermatrix, ASTRAL uses the topologies of individual gene trees to infer the species tree that maximizes agreement among induced quartet relationships (sets of four taxa). This approach explicitly accounts for gene tree discordance, which can arise due to incomplete lineage sorting. In this analysis, one gene tree was inferred per nuclear marker (using maximum likelihood), and these gene trees were combined as input to ASTRAL to produce a species tree with branch support values based on quartet frequencies.
+- Assumptions: ASTRAL assumes that the input gene trees are estimated from orthologous loci and are reasonably accurate representations of the true gene histories. It is based on the multispecies coalescent model, which assumes that discordance among gene trees is primarily due to incomplete lineage sorting rather than other processes such as horizontal gene transfer, gene duplication, or hybridization. The method also assumes that taxa are correctly labeled and consistently represented across gene trees, and that each gene tree is unrooted. Additionally, it assumes that loci are independently inherited and that the sampling of loci is sufficient to capture the underlying species tree signal.
+- Limitations: Because ASTRAL is a summary method, its accuracy depends heavily on the quality of the input gene trees; errors in gene tree estimation (e.g., due to short alignments, poor model fit, or limited phylogenetic signal) can propagate into the species tree. The method does not use the original sequence data directly, so it cannot correct for biases introduced during gene tree inference. ASTRAL also assumes that incomplete lineage sorting is the primary cause of discordance and does not explicitly model other evolutionary processes such as gene duplication/loss or introgression, which may lead to misleading results if present. In this analysis, a key limitation is the relatively small number of loci (12 nuclear markers), which may limit the ability to fully resolve species relationships and reduce confidence in branches with low quartet support. Therefore, while the inferred species tree provides a coalescent-based estimate of relationships, it should be interpreted alongside results from other methods (e.g., concatenated maximum likelihood or Bayesian inference) to assess consistency and robustness.
+- downloaded ASTRAL from zip file (https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip)
+- test my installation - it worked
+    java -jar /Users/liamargolin/Downloads/Astral/astral.5.7.8.jar
+    
+    java -jar /Users/liamargolin/Downloads/Astral/astral.5.7.8.jar \
+        -i /Users/liamargolin/Downloads/Astral/test_data/song_primates.424.gene.tre \
+        -o /Users/liamargolin/Downloads/astral_test_output.tre
+        
+    ls /Users/liamargolin/Downloads/astral_test_output.tre
+    
+    cat /Users/liamargolin/Downloads/astral_test_output.tre
+- The available 11-taxon FASTA file contained only one marker (ALB), so it was not suitable for a multispecies coalescent analysis in ASTRAL, which requires multiple gene trees from multiple loci.
+- Using sample dataset to practice
+    in directory -> /Users/liamargolin/Downloads/Astral
+    
+    java -jar astral.5.7.8.jar -i test_data/song_mammals.424.gene.tre
+    java -Djava.library.path=./lib/ -jar astralmp.5.7.8.jar -i test_data/song_mammals.424.gene.tre
+    
+    java -jar astral.5.7.8.jar -i test_data/song_mammals.424.gene.tre -o test_data/song_mammals.tre
+    java -Djava.library.path=./lib/ -jar astralmp.5.7.8.jar -i test_data/song_mammals.424.gene.tre -o test_data/song_mammals.tre
+    
+    *in R - read tree
+        library(ape)
+        tre = read.tree(file="song_mammals.tre")
+        plot(tre)
+        nodelabels(text = tre$node.label)
+    
+    *got an error - ran this instead per chat gpt - got a tree
+        tre <- read.tree("/Users/liamargolin/Downloads/Astral/test_data/song_mammals.tre")
+        plot(tre)
+        nodelabels()
 
+ 
 
